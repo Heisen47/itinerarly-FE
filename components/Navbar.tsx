@@ -1,28 +1,30 @@
-"use client"
+"use client";
 
-import React, { use, useState } from 'react'
-import Link from 'next/link'
-import { Menu, X, User } from 'lucide-react'
+import React, { use, useState } from "react";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { Loader2 } from "lucide-react";
 
-type ButtonVariant = 'default' | 'ghost'
+type ButtonVariant = "default" | "ghost";
 
-interface CustomButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  children: React.ReactNode
-  variant?: ButtonVariant
-  className?: string
+interface CustomButtonProps
+  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  children: React.ReactNode;
+  variant?: ButtonVariant;
+  className?: string;
 }
 
-const CustomButton = ({ 
-  children, 
-  variant = 'default',
-  className = '',
-  ...props 
+const CustomButton = ({
+  children,
+  variant = "default",
+  className = "",
+  ...props
 }: CustomButtonProps) => {
-  const baseStyles = "px-4 py-2 rounded-md font-medium transition-colors"
+  const baseStyles = "px-4 py-2 rounded-md font-medium transition-colors";
   const variants = {
     default: "bg-blue-600 text-white hover:bg-blue-700",
-    ghost: "text-gray-600 hover:bg-gray-100"
-  }
+    ghost: "text-gray-600 hover:bg-gray-100",
+  };
 
   return (
     <button
@@ -31,21 +33,39 @@ const CustomButton = ({
     >
       {children}
     </button>
-  )
-}
+  );
+};
 
 const Navbar = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false);
+  const router = useRouter();
+
+  const handleGetStarted = async () => {
+    setIsLoading(true);
+    await router.push("/start");
+  };
+
+   const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ 
+        behavior: 'smooth',
+        block: 'start'
+      });
+      setIsMenuOpen(false);
+    }
+  };
 
   const navItems = [
-    { label: 'Home', href: '/' },
-    { label: 'Features', href: '/features' },
-    { label: 'Pricing', href: '/pricing' },
-    { label: 'About', href: '/about' },
-  ]
+    { label: "Home", href: "/" },
+    { label: "About", href: "#about", isSection: true },
+    { label: "Features", href: "#features", isSection: true },
+    // { label: 'Pricing', href: '/pricing' },
+  ];
 
   return (
-    <nav className=" top-0 z-50">
+    <nav className="top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between h-16">
           {/* Logo */}
@@ -57,66 +77,59 @@ const Navbar = () => {
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="text-gray-600 hover:text-gray-900 transition-colors"
-              >
-                {item.label}
-              </Link>
-            ))}
+            {navItems.map((item) =>
+              item.isSection ? (
+                <button
+                  key={item.label}
+                  onClick={() => scrollToSection(item.href.slice(1))}
+                  className="text-gray-900 transition-colors cursor-pointer"
+                >
+                  {item.label}
+                </button>
+              ) : (
+                <Link
+                  key={item.label}
+                  href={item.href}
+                  className="text-gray-900 transition-colors"
+                >
+                  {item.label}
+                </Link>
+              )
+            )}
             <CustomButton variant="ghost" className="text-sm">
               Sign In
             </CustomButton>
-            <CustomButton className="text-sm">
-              Get Started
+            <CustomButton
+              className="text-sm"
+              onClick={handleGetStarted}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                "Get Started"
+              )}
             </CustomButton>
           </div>
 
           {/* Mobile menu button */}
           <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="text-gray-600 hover:text-gray-900"
+            <CustomButton
+              className="text-sm"
+              onClick={handleGetStarted}
+              disabled={isLoading}
             >
-              {isMenuOpen ? (
-                <X className="h-6 w-6" />
+              {isLoading ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
               ) : (
-                <Menu className="h-6 w-6" />
+                "Get Started"
               )}
-            </button>
+            </CustomButton>
           </div>
         </div>
       </div>
-
-      {/* Mobile Navigation */}
-      {isMenuOpen && (
-        <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {navItems.map((item) => (
-              <Link
-                key={item.label}
-                href={item.href}
-                className="block px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-50 rounded-md"
-                onClick={() => setIsMenuOpen(false)}
-              >
-                {item.label}
-              </Link>
-            ))}
-            <div className="mt-4 space-y-2">
-              <CustomButton variant="ghost" className="w-full justify-start text-sm">
-                Sign In
-              </CustomButton>
-              <CustomButton className="w-full text-sm">
-                Get Started
-              </CustomButton>
-            </div>
-          </div>
-        </div>
-      )}
     </nav>
-  )
-}
+  );
+};
 
-export default Navbar
+export default Navbar;
