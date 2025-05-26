@@ -1,9 +1,24 @@
 'use client'
 
+import { useSearchParams } from 'next/navigation';
 import { ComposableMap, Geographies, Geography } from "react-simple-maps";
 import indiaGeoJson from "./india-states.json";
+import { sections } from "@/data/sections";
 
 export default function Page() {
+  const searchParams = useSearchParams();
+  const type = searchParams.get('type');
+
+  const selectedSection = sections.find(section => section.id === type);
+  const highlightedPlaces = selectedSection?.places || [];
+
+  const isHighlighted = (geo: any) => {
+    return highlightedPlaces.some(place => 
+      typeof place === 'object' && place !== null && 'state' in place && 
+      (place as { state: string }).state === geo.properties.NAME_1
+    );
+  };
+
   return (
     <div className="w-full h-screen bg-blue-500">
       <ComposableMap
@@ -23,12 +38,12 @@ export default function Page() {
               <Geography
                 key={geo.properties.NAME_1}
                 geography={geo}
-                fill="#D6D6DA"
+                fill={isHighlighted(geo) ? "#F53" : "#D6D6DA"}
                 stroke="#FFFFFF"
                 strokeWidth={0.5}
                 style={{
                   default: { 
-                    fill: "#D6D6DA", 
+                    fill: isHighlighted(geo) ? "#F53" : "#D6D6DA", 
                     outline: "none" 
                   },
                   hover: { 
