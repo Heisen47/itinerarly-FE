@@ -65,7 +65,6 @@ export default function IndiaMap() {
 
   const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
     event.preventDefault();
-    // You can adjust the sensitivity by changing the division factor
     const delta = event.deltaY / 120;
     if (delta > 0) {
       handleZoomOut();
