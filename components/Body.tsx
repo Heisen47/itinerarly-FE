@@ -147,17 +147,18 @@ const Body: React.FC<BodyProps> = ({ sectionRefs, sections }) => {
             </h1>
             <br />
             <hr />
+            <br />
             <div className="space-y-6">
-              <h1 className="text-2xl font-semibold">Where are we planning to go?</h1>
+              <h1 className="text-2xl text-center font-semibold">Where are we planning to go?</h1>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="w-full max-w-md"
+                className="w-full mx-auto text-center max-w-md"
               >
                 <select
                   onChange={handleDestinationChange}
-                  className="w-full px-4 py-3 rounded-lg bg-white/10 backdrop-blur-sm text-white border border-white/20 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
+                  className="w-full px-4 py-3 text-center rounded-lg bg-white/10 backdrop-blur-sm text-black border border-white/20 focus:border-blue-500 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
                   defaultValue=""
                 >
                   <option value="" disabled>
@@ -177,9 +178,16 @@ const Body: React.FC<BodyProps> = ({ sectionRefs, sections }) => {
             initial={{ opacity: 0, x: 100 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.7, delay: 0.6, ease: "easeOut" }}
-            className="text-center space-y-6 mx-auto max-w-xl"
+            className="text-center "
           >
-            <h2 className="text-2xl font-semibold">Ready to Start Your Journey?</h2>
+            <hr />
+            <br />
+            <h1 className="text-3xl text-center">
+                Not Sure where to start? Don't worry, we got you covered!
+            </h1>
+            <br />
+            <hr />
+            <br />
             <Link
               href="/start"
               className="inline-block px-10 py-4 text-lg font-medium bg-blue-600/90 rounded-lg transition-all duration-300 hover:bg-blue-500 hover:shadow-xl hover:scale-105 backdrop-blur-sm"
