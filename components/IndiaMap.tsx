@@ -11,15 +11,19 @@ import indiaGeoJson from "../app/start/india-states.json";
 import { sections } from "@/data/sections";
 import { useEffect, useState } from "react";
 import { LoaderCircle, RotateCcw } from "lucide-react";
-import { stateData } from "@/data/states";
 import { Plus, Minus } from "lucide-react";
 import { ZoomableGroup } from "react-simple-maps";
 
 export default function IndiaMap() {
   const [hoveredPlace, setHoveredPlace] = useState<string | null>(null);
+  const [hoveredPlaceDetails, setHoveredPlaceDetails] = useState<any | null>(null);
+  const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
   const [isMapLoading, setIsMapLoading] = useState(true);
   const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [selectedPlace, setSelectedPlace] = useState<string | null>(null);
+  const [dialogTimeout, setDialogTimeout] = useState<NodeJS.Timeout | null>(null);
   const [position, setPosition] = useState({ coordinates: [82, 22], zoom: 1 });
+  
   const searchParams = useSearchParams();
   const type = searchParams.get("type");
 
@@ -38,14 +42,12 @@ export default function IndiaMap() {
           throw new Error("GeoJSON data not found");
         }
         await new Promise((resolve) => setTimeout(resolve, 300));
-
         setIsMapLoading(false);
       } catch (error) {
         console.error("Error loading map:", error);
         setIsMapLoading(false);
       }
     };
-
     loadMap();
   }, []);
 
@@ -63,14 +65,39 @@ export default function IndiaMap() {
     setPosition({ coordinates: [82, 22], zoom: 1 });
   }
 
-  const handleWheel = (event: React.WheelEvent<HTMLDivElement>) => {
-    event.preventDefault();
-    const delta = event.deltaY / 120;
-    if (delta > 0) {
-      handleZoomOut();
-    } else {
-      handleZoomIn();
+  const handleMouseEnter = (place: any, event: React.MouseEvent) => {
+    if (!selectedPlace) {
+      setHoveredPlace(place.name);
+      setHoveredPlaceDetails(place.details);
+      setMousePosition({ x: event.clientX, y: event.clientY });
     }
+  };
+
+  const handleMouseLeave = () => {
+    if (!selectedPlace) {
+      setHoveredPlace(null);
+      setHoveredPlaceDetails(null);
+    }
+  };
+
+  const handleMarkerClick = (place: any, event: React.MouseEvent) => {
+    event.stopPropagation();
+    setSelectedPlace(place.name);
+    setHoveredPlace(place.name);
+    setHoveredPlaceDetails(place.details);
+    setMousePosition({ x: event.clientX, y: event.clientY });
+
+    if (dialogTimeout) {
+      clearTimeout(dialogTimeout);
+    }
+
+    const timeout = setTimeout(() => {
+      setSelectedPlace(null);
+      setHoveredPlace(null);
+      setHoveredPlaceDetails(null);
+    }, 3000);
+
+    setDialogTimeout(timeout);
   };
 
   return (
@@ -98,6 +125,7 @@ export default function IndiaMap() {
           <RotateCcw className="w-6 h-6" />
         </button>
       </div>
+      
       {isMapLoading ? (
         <div className="h-full w-full flex items-center justify-center">
           <div className="flex flex-col items-center space-y-4">
@@ -109,8 +137,8 @@ export default function IndiaMap() {
         <ComposableMap
           projection="geoMercator"
           projectionConfig={{
-            scale: selectedState ? stateData[selectedState]?.zoom : 800,
-            center: selectedState ? stateData[selectedState]?.center : [82, 22],
+            scale: 800, // Fixed scale instead of dynamic scaling
+            center: [82, 22], // Fixed center instead of dynamic centering
           }}
           style={{
             width: "100%",
@@ -120,13 +148,7 @@ export default function IndiaMap() {
           <ZoomableGroup
             zoom={position.zoom}
             center={position.coordinates}
-            onMoveEnd={({
-              coordinates,
-              zoom,
-            }: {
-              coordinates: [number, number];
-              zoom: number;
-            }) => setPosition({ coordinates, zoom })}
+            onMoveEnd={({coordinates, zoom}) => setPosition({ coordinates, zoom })}
             maxZoom={4}
             minZoom={1}
           >
@@ -136,11 +158,7 @@ export default function IndiaMap() {
                   <Geography
                     key={geo.properties.NAME_1}
                     onClick={() => handleStateClick(geo)}
-                    fill={
-                      selectedState === geo.properties.NAME_1
-                        ? "#4299E1"
-                        : "#D6D6DA"
-                    }
+                    fill={selectedState === geo.properties.NAME_1 ? "#4299E1" : "#D6D6DA"}
                     geography={geo}
                     stroke="#FFFFFF"
                     strokeWidth={0.5}
@@ -163,53 +181,55 @@ export default function IndiaMap() {
               }
             </Geographies>
 
-            {/* Add Markers for specific locations */}
             {highlightedPlaces.map((place: any) => (
               <Marker
                 key={place.name}
                 coordinates={[place.coordinates[0], place.coordinates[1]]}
               >
                 <g
-                  onMouseEnter={() => setHoveredPlace(place.name)}
-                  onMouseLeave={() => setHoveredPlace(null)}
+                  onClick={(e) => handleMarkerClick(place, e)}
+                  onMouseEnter={(e) => handleMouseEnter(place, e)}
+                  onMouseLeave={handleMouseLeave}
                   style={{ cursor: "pointer" }}
                 >
                   <circle
                     r={hoveredPlace === place.name ? 6 : 4}
-                    fill={hoveredPlace === place.name ? "#FF8C00" : "#F53"}
+                    fill={
+                      selectedPlace === place.name
+                        ? "#FF8C00"
+                        : hoveredPlace === place.name
+                        ? "#FFA500"
+                        : "#F53"
+                    }
                     stroke="#fff"
                     strokeWidth={2}
                     className="transition-all duration-200"
                   />
-                  {hoveredPlace === place.name && (
-                    <>
-                      <rect
-                        x="-50"
-                        y="-35"
-                        width="100"
-                        height="22"
-                        fill="rgba(0,0,0,0.8)"
-                        rx="4"
-                      />
-                      <text
-                        textAnchor="middle"
-                        y="-20"
-                        style={{
-                          fontFamily: "system-ui",
-                          fill: "#fff",
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        {place.name}
-                      </text>
-                    </>
-                  )}
                 </g>
               </Marker>
             ))}
           </ZoomableGroup>
         </ComposableMap>
+      )}
+
+      {hoveredPlace && (
+        <div
+          className="fixed bg-white p-4 rounded-lg shadow-xl border border-gray-200 z-50"
+          style={{
+            left: mousePosition.x + 10,
+            top: mousePosition.y + 10,
+            maxWidth: "300px",
+          }}
+        >
+          <h3 className="font-semibold text-lg mb-2">{hoveredPlace}</h3>
+          <hr />
+          <button 
+            className="text-blue-400 text-center hover:underline" 
+            onClick={() => console.log("clicked")}
+          >
+            Show details
+          </button>
+        </div>
       )}
     </div>
   );

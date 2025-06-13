@@ -163,13 +163,15 @@ const Body: React.FC<BodyProps> = ({ sectionRefs, sections }) => {
             </h1>
             <br />
             <hr />
-            <div className="space-y-6">
-              <h1 className="text-2xl font-semibold">Where are we planning to go?</h1>
+            <div className="space-y-6 text-center">
+              <h1 className="text-2xl p-6 font-semibold">
+                Where are we planning to go?
+              </h1>
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5 }}
-                className="w-full max-w-md"
+                className="flex flex-col items-center w-full max-w-md mx-auto"
               >
                 <select
                   onChange={handleDestinationChange}
@@ -219,12 +221,14 @@ const Body: React.FC<BodyProps> = ({ sectionRefs, sections }) => {
             transition={{ duration: 0.7, delay: 0.6, ease: "easeOut" }}
             className="text-center space-y-6 mx-auto max-w-xl"
           >
-            <h2 className="text-2xl font-semibold">Ready to Start Your Journey?</h2>
+            <h2 className="text-2xl font-semibold">
+              Not Sure where to go?
+            </h2>
             <Link
               href="/start"
               className="inline-block px-10 py-4 text-lg font-medium bg-blue-600/90 rounded-lg transition-all duration-300 hover:bg-blue-500 hover:shadow-xl hover:scale-105 backdrop-blur-sm"
             >
-              Plan Your Trip Now
+              Click me!
             </Link>
           </motion.div>
         </div>
