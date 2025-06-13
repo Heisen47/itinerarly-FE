@@ -14,7 +14,12 @@ import { LoaderCircle, RotateCcw } from "lucide-react";
 import { Plus, Minus } from "lucide-react";
 import { ZoomableGroup } from "react-simple-maps";
 
-export default function IndiaMap() {
+
+interface IndiaMapProps {
+  type: string | null;
+}
+
+export default function IndiaMap({ type }: IndiaMapProps) {
   const [hoveredPlace, setHoveredPlace] = useState<string | null>(null);
   const [hoveredPlaceDetails, setHoveredPlaceDetails] = useState<any | null>(null);
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
@@ -24,8 +29,6 @@ export default function IndiaMap() {
   const [dialogTimeout, setDialogTimeout] = useState<NodeJS.Timeout | null>(null);
   const [position, setPosition] = useState({ coordinates: [82, 22], zoom: 1 });
   
-  const searchParams = useSearchParams();
-  const type = searchParams.get("type");
 
   const selectedSection = sections.find((section) => section.id === type);
   const highlightedPlaces = selectedSection?.places || [];
