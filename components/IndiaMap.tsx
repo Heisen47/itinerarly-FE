@@ -148,7 +148,12 @@ export default function IndiaMap() {
           <ZoomableGroup
             zoom={position.zoom}
             center={position.coordinates}
-            onMoveEnd={({coordinates, zoom}) => setPosition({ coordinates, zoom })}
+            onMoveEnd={({
+              coordinates,
+              zoom,
+            }: { coordinates: [number, number]; zoom: number }) =>
+              setPosition({ coordinates, zoom })
+            }
             maxZoom={4}
             minZoom={1}
           >
