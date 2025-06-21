@@ -1,5 +1,7 @@
 import '../styles/global.css';
 import React from 'react';
+import { Analytics } from '@vercel/analytics/react'
+
 
 export const metadata = {
   title: 'Itinerary App',
@@ -15,6 +17,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </head>
       <body>
         {children}
+        <Analytics />
       </body>
     </html>
   );
